@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mango AI - ระบบจัดการสวนมะม่วงอัจฉริยะ</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Meta Tags รองรับการแสดงผลแบบ Full Screen บน iPad / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mango AI">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mango: {
+                            50: '#fffbe1',
+                            100: '#fff5b7',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 font-sans antialiased selection:bg-mango-500 selection:text-slate-950">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-mango-400 to-amber-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-mango-500/20">
+                🥭
+            </div>
+            <div>
+                <h1 class="text-sm font-bold bg-gradient-to-r from-mango-400 to-amber-200 bg-clip-text text-transparent">Mango AI</h1>
+                <p class="text-[10px] text-slate-400">Smart Orchard Assistant</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Online
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-md mx-auto p-4 space-y-4">
+
+        <!-- แถบแจ้งเตือนติดตั้ง PWA -->
+        <div id="pwa-install-banner" class="fixed top-16 left-4 right-4 z-50 glass-panel border border-mango-500/30 bg-slate-900/95 p-3 rounded-2xl shadow-2xl max-w-md mx-auto flex items-center justify-between gap-3 animate-bounce">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-mango-500/20 text-mango-400 flex items-center justify-center font-bold text-sm">
+                    📱
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-100">ติดตั้ง Mango AI</h4>
+                    <p class="text-[10px] text-slate-400">เพิ่มลงหน้าจอมือถือเพื่อใช้งานได้สะดวกขึ้น</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button id="pwa-install-btn" class="px-3 py-1.5 bg-mango-500 hover:bg-mango-600 text-slate-950 font-bold text-xs rounded-xl transition">
+                    ติดตั้ง
+                </button>
+                <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="px-2 py-1.5 text-slate-400 text-xs">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- แท็บ 1: ภาพรวม (Dashboard) -->
+        <section id="tab-dashboard" class="tab-content space-y-4">
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <div class="flex justify-between items-center text-xs text-slate-400">
+                    <span>สภาพอากาศวันนี้</span>
+                    <span id="weather-location">เชียงใหม่</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-3xl font-black text-slate-100" id="weather-temp">32°C</div>
+                        <div class="text-xs text-slate-400" id="weather-desc">แดดจัด / ความชื้น 55%</div>
+                    </div>
+                    <div class="text-4xl">☀️</div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 space-y-2 border-l-4 border-mango-400">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-slate-300">ประเมินสภาวะแปลงปลูก</h3>
+                    <span class="text-[10px] bg-mango-500/20 text-mango-400 px-2 py-0.5 rounded-full border border-mango-500/30">ระยะสะสมอาหาร</span>
+                </div>
+                <p class="text-xs text-slate-300">สภาวะโดยรวมเหมาะสม แนะนำควบคุมการให้น้ำเพื่อกระตุ้นการตาดอก</p>
+            </div>
+        </section>
+
+        <!-- แท็บ 2: จัดการแปลงปลูก (Orchard) -->
+        <section id="tab-orchard" class="tab-content hidden space-y-4">
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="trees" class="w-4 h-4 text-mango-400"></i>
+                    เพิ่มแปลงปลูกใหม่
+                </h2>
+                <form onsubmit="UI.addOrchardFromForm(event)" class="space-y-3">
+                    <div>
+                        <input type="text" id="orchard-name" placeholder="ชื่อแปลงปลูก (เช่น แปลงสวนบน)" required class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="orchard-area" placeholder="ขนาด (เช่น 10 ไร่)" class="bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                        <input type="number" id="orchard-trees" placeholder="จำนวนต้น" class="bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                    </div>
+                    <div>
+                        <input type="text" id="orchard-location" placeholder="สถานที่ / พิกัด" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-mango-500 hover:bg-mango-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition">
+                        + บันทึกแปลงปลูก
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">รายการแปลงปลูกทั้งหมด</h3>
+                <div id="orchard-list" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- แท็บ 3: งานสวน (Tasks) -->
+        <section id="tab-tasks" class="tab-content hidden space-y-4">
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="check-square" class="w-4 h-4 text-mango-400"></i>
+                    เพิ่มงานสวนใหม่
+                </h2>
+                <form onsubmit="UI.addTaskFromForm(event)" class="space-y-3">
+                    <div>
+                        <input type="text" id="task-title" placeholder="หัวข้องาน (เช่น ใส่ปุ๋ยสูตร 25-7-7)" required class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="task-orchard" class="bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                            <option value="">เลือกแปลงปลูก</option>
+                        </select>
+                        <input type="date" id="task-date" class="bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-mango-500 hover:bg-mango-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition">
+                        + บันทึกกิจกรรม/งานสวน
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">รายการงานสวนทั้งหมด</h3>
+                <div id="task-list" class="space-y-2"></div>
+            </div>
+        </section>
+
+        <!-- แท็บ 4: AI วิเคราะห์ (Mango AI) -->
+        <section id="tab-ai" class="tab-content hidden space-y-4">
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-mango-400"></i>
+                    ประเมินสภาวะด้วย AI Decision Engine
+                </h2>
+                <form onsubmit="UI.runAIDecision(event)" class="space-y-3">
+                    <div>
+                        <label class="text-[10px] text-slate-400 mb-1 block">ระยะการเจริญเติบโต</label>
+                        <select id="ai-stage" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                            <option value="RECOVERY">ระยะฟื้นฟูต้นหลังเก็บเกี่ยว</option>
+                            <option value="FLOWER_INDUCTION">ระยะสะสมอาหาร / ดึงดอก</option>
+                            <option value="BLOOMING">ระยะดอกบาน</option>
+                            <option value="FRUIT_DEVELOPMENT">ระยะขยายขนาดผล</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-slate-400 mb-1 block">อุณหภูมิ (°C)</label>
+                            <input type="number" id="ai-temp" value="32" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 mb-1 block">ความชื้นดิน (%)</label>
+                            <input type="number" id="ai-moisture" value="50" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-slate-400 mb-1 block">ความเสี่ยงแอนแทรคโนส</label>
+                            <select id="ai-anthracnose" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                                <option value="LOW">ต่ำ</option>
+                                <option value="HIGH">สูง</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 mb-1 block">ความเสี่ยงเพลี้ยจักจั่น</label>
+                            <select id="ai-jassid" class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100">
+                                <option value="LOW">ต่ำ</option>
+                                <option value="HIGH">สูง</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-mango-500 hover:bg-mango-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition">
+                        วิเคราะห์ความเสี่ยงและขอคำแนะนำ
+                    </button>
+                </form>
+
+                <div id="decision-result-container"></div>
+            </div>
+
+            <!-- เครื่องมือคำนวณปุ๋ย -->
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="calculator" class="w-4 h-4 text-mango-400"></i>
+                    คำนวณปริมาณปุ๋ยตามอายุต้น
+                </h2>
+                <form onsubmit="UI.calculateFertilizer(event)" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-slate-400 mb-1 block">อายุต้นมะม่วง (ปี)</label>
+                            <input type="number" id="fert-age" min="1" max="50" value="3" required class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 mb-1 block">จำนวนต้น</label>
+                            <input type="number" id="fert-trees" min="1" value="100" required class="w-full bg-slate-900 border border-slate-800 text-xs rounded-xl p-2.5 text-slate-100 focus:outline-none focus:border-mango-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-mango-500 hover:bg-mango-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition">
+                        คำนวณปริมาณปุ๋ยที่ต้องใช้
+                    </button>
+                </form>
+
+                <!-- แสดงผลลัพธ์ -->
+                <div id="fert-result" class="hidden p-3 bg-slate-900/90 border border-mango-500/30 rounded-xl space-y-2 text-xs">
+                    <div class="flex justify-between items-center text-mango-400 font-bold">
+                        <span>ปริมาณปุ๋ยที่แนะนำ:</span>
+                        <span id="res-total-fert" class="text-sm">0 กก./ปี</span>
+                    </div>
+                    <p class="text-slate-300">เฉลี่ย: <span id="res-rate-tree" class="font-bold text-slate-100">0</span> กก./ต้น/ปี</p>
+                    <p class="text-slate-300">สูตรที่แนะนำ: <span id="res-formula" class="font-bold text-mango-400"></span></p>
+                    <p class="text-[11px] text-slate-400 italic" id="res-note"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-slate-800/80 px-4 py-2.5 flex justify-around items-center max-w-md mx-auto">
+        <button data-tab="dashboard" onclick="UI.switchTab('dashboard')" class="nav-btn active text-mango-400 flex flex-col items-center gap-1 text-[10px] font-medium">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            ภาพรวม
+        </button>
+        <button data-tab="orchard" onclick="UI.switchTab('orchard')" class="nav-btn text-slate-400 flex flex-col items-center gap-1 text-[10px] font-medium">
+            <i data-lucide="trees" class="w-5 h-5"></i>
+            แปลงปลูก
+        </button>
+        <button data-tab="tasks" onclick="UI.switchTab('tasks')" class="nav-btn text-slate-400 flex flex-col items-center gap-1 text-[10px] font-medium">
+            <i data-lucide="check-square" class="w-5 h-5"></i>
+            งานสวน
+        </button>
+        <button data-tab="ai" onclick="UI.switchTab('ai')" class="nav-btn text-slate-400 flex flex-col items-center gap-1 text-[10px] font-medium">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            Mango AI
+        </button>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="orchard.js"></script>
+    <script src="tasks.js"></script>
+    <script src="fertilizer.js"></script>
+    <script src="decision.js"></script>
+    <script src="ui.js"></script>
+    <script src="pwa-install.js"></script>
+    <script src="weather.js"></script>
+    <script src="notifications.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            if (window.ORCHARDS) window.ORCHARDS.init();
+        });
+    </script>
+</body>
+</html>
