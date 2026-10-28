@@ -234,14 +234,14 @@ const WEATHER = {
         if (weather) {
             this.renderUI(weather);
 
-            window.MANGO_WEATHER = {
+            globalThis.MANGO_WEATHER = {
                 ...weather,
                 latitude: location.lat,
                 longitude: location.lng,
                 locationSource: location.source
             };
 
-            return window.MANGO_WEATHER;
+            return globalThis.MANGO_WEATHER;
         }
 
         this.renderError();
@@ -257,7 +257,7 @@ const WEATHER = {
     }
 };
 
-window.WEATHER = WEATHER;
+globalThis.WEATHER = WEATHER;
 
 document.addEventListener('DOMContentLoaded', () => {
     WEATHER.startAutoRefresh();
