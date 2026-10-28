@@ -23,7 +23,7 @@ const UI = {
     const listContainer = document.getElementById('orchard-list');
     if (!listContainer) return;
 
-    const list = window.ORCHARDS ? await window.ORCHARDS.getAll() : [];
+    const list = globalThis.ORCHARDS ? await globalThis.ORCHARDS.getAll() : [];
     if (list.length === 0) {
       listContainer.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs">ยังไม่มีข้อมูลแปลงปลูก</div>`;
       return;
@@ -46,7 +46,7 @@ const UI = {
     if (!name) return alert('กรุณากรอกชื่อแปลงปลูก');
 
     try {
-      await window.ORCHARDS.save({
+      await globalThis.ORCHARDS.save({
         name: name,
         area: document.getElementById('orchard-area')?.value.trim() || '',
         trees: Number(document.getElementById('orchard-trees')?.value || 0),
@@ -68,7 +68,7 @@ const UI = {
   deleteOrchard: async function(id) {
     if (!confirm('ยืนยันการลบแปลงปลูก?')) return;
     try {
-      await window.ORCHARDS.delete(id);
+      await globalThis.ORCHARDS.delete(id);
       await this.renderOrchards();
     } catch (error) {
       console.error('Delete orchard failed:', error);
@@ -81,7 +81,7 @@ const UI = {
     const dropdown = document.getElementById('task-orchard');
     if (!dropdown) return;
 
-    const orchards = window.ORCHARDS ? await window.ORCHARDS.getAll() : [];
+    const orchards = globalThis.ORCHARDS ? await globalThis.ORCHARDS.getAll() : [];
     dropdown.innerHTML = '<option value="">เลือกแปลงปลูก (ไม่ระบุ)</option>' +
       orchards.map(o => `<option value="${o.name}">${o.name}</option>`).join('');
   },
@@ -90,7 +90,7 @@ const UI = {
     const listContainer = document.getElementById('task-list');
     if (!listContainer) return;
 
-    const list = window.TASKS ? window.TASKS.getAll() : [];
+    const list = globalThis.TASKS ? globalThis.TASKS.getAll() : [];
     if (list.length === 0) {
       listContainer.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs">ยังไม่มีงานสวนที่บันทึกไว้</div>`;
       return;
@@ -115,7 +115,7 @@ const UI = {
     const title = document.getElementById('task-title')?.value.trim();
     if (!title) return alert('กรุณากรอกหัวข้องาน');
 
-    window.TASKS.save({
+    globalThis.TASKS.save({
       title: title,
       orchardName: document.getElementById('task-orchard')?.value || '',
       dueDate: document.getElementById('task-date')?.value || ''
@@ -128,13 +128,13 @@ const UI = {
   },
 
   toggleTask: function(id) {
-    window.TASKS.toggleComplete(id);
+    globalThis.TASKS.toggleComplete(id);
     this.renderTasks();
   },
 
   deleteTask: function(id) {
     if (confirm('ยืนยันการลบงานสวนนี้?')) {
-      window.TASKS.delete(id);
+      globalThis.TASKS.delete(id);
       this.renderTasks();
     }
   },
@@ -148,9 +148,9 @@ const UI = {
     const anthracnose = document.getElementById('ai-anthracnose')?.value || 'LOW';
     const jassid = document.getElementById('ai-jassid')?.value || 'LOW';
 
-    if (window.DECISION_ENGINE) {
-      const result = window.DECISION_ENGINE.evaluate(stage, temp, moisture, anthracnose, jassid);
-      window.DECISION_ENGINE.renderResult(result);
+    if (globalThis.DECISION_ENGINE) {
+      const result = globalThis.DECISION_ENGINE.evaluate(stage, temp, moisture, anthracnose, jassid);
+      globalThis.DECISION_ENGINE.renderResult(result);
     }
   },
 
@@ -160,8 +160,8 @@ const UI = {
     const age = Number(document.getElementById('fert-age')?.value || 1);
     const trees = Number(document.getElementById('fert-trees')?.value || 1);
 
-    if (window.FERTILIZER_CALCULATOR) {
-      const res = window.FERTILIZER_CALCULATOR.calculateRequirement(age, trees);
+    if (globalThis.FERTILIZER_CALCULATOR) {
+      const res = globalThis.FERTILIZER_CALCULATOR.calculateRequirement(age, trees);
       
       const totalFertEl = document.getElementById('res-total-fert');
       const rateTreeEl = document.getElementById('res-rate-tree');
@@ -178,4 +178,4 @@ const UI = {
   }
 };
 
-window.UI = UI;
+globalThis.UI = UI;
